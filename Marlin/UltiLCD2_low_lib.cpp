@@ -10,6 +10,7 @@
 #define LCD_GFX_HEIGHT 64
 
 #define LCD_RESET_PIN 5
+#define LCD_CS_PIN    6
 #define I2C_SDA_PIN   20
 #define I2C_SCL_PIN   21
 
@@ -37,7 +38,7 @@
 #define LCD_COMMAND_DISPLAY_OFF             0xAE
 #define LCD_COMMAND_DISPLAY_ON              0xAF
 #define LCD_COMMAND_NOP                     0xE3
-#define LCD_COMMAND_LOCK_COMMANDS           0xFD
+#define LCD_COMMAND_LOCK_COMMANDS           0xDF
 
 #define LCD_COMMAND_SET_ADDRESSING_MODE     0x20
 
@@ -83,19 +84,15 @@ static void i2c_led_write(uint8_t addr, uint8_t data)
 
 void lcd_lib_init()
 {
+    SET_OUTPUT(LCD_CS_PIN);
     SET_OUTPUT(LCD_RESET_PIN);
 
     SET_OUTPUT(I2C_SDA_PIN);
     SET_OUTPUT(I2C_SCL_PIN);
-    
-    //Set unused pins in the 10 pin connector to GND to improve shielding of the cable.
-    SET_OUTPUT(LCD_PINS_D4); WRITE(LCD_PINS_D4, 0); //RXD3/PJ1
-    SET_OUTPUT(LCD_PINS_ENABLE); WRITE(LCD_PINS_ENABLE, 0); //TXD3/PJ0
-    SET_OUTPUT(LCD_PINS_D7); WRITE(LCD_PINS_D7, 0); //PH3
 
     //Set the beeper as output.
     SET_OUTPUT(BEEPER);
-
+    
     //Set the encoder bits and encoder button as inputs with pullup
     SET_INPUT(BTN_EN1);
     SET_INPUT(BTN_EN2);
@@ -107,6 +104,7 @@ void lcd_lib_init()
     SET_INPUT(SDCARDDETECT);
     WRITE(SDCARDDETECT, HIGH);
 
+    WRITE(LCD_CS_PIN, 0);
     WRITE(I2C_SDA_PIN, 1);
     WRITE(I2C_SCL_PIN, 1);
 
@@ -114,7 +112,7 @@ void lcd_lib_init()
     _delay_ms(1);
     WRITE(LCD_RESET_PIN, 1);
     _delay_ms(1);
-
+    
     //ClockFreq = (F_CPU) / (16 + 2*TWBR * 4^TWPS)
     //TWBR = ((F_CPU / ClockFreq) - 16)/2*4^TWPS
     TWBR = ((F_CPU / I2C_FREQ) - 16)/2*1;
@@ -133,10 +131,10 @@ void lcd_lib_init()
     i2c_start();
     i2c_send_raw(I2C_LCD_ADDRESS << 1 | I2C_WRITE);
     i2c_send_raw(I2C_LCD_SEND_COMMAND);
-
+    
     i2c_send_raw(LCD_COMMAND_LOCK_COMMANDS);
     i2c_send_raw(0x12);
-
+    
     i2c_send_raw(LCD_COMMAND_DISPLAY_OFF);
 
     i2c_send_raw(0xD5);//Display clock divider/freq
@@ -150,15 +148,15 @@ void lcd_lib_init()
 
     i2c_send_raw(0x40);//Set start line
 
-    i2c_send_raw(0xA1);//Segment remap
+    i2c_send_raw(0xA0);//Segment remap UM2_UZ
 
-    i2c_send_raw(0xC8);//COM scan output direction
+    i2c_send_raw(0xC0);//COM scan output direction UM2_UZ
     i2c_send_raw(0xDA);//COM pins hardware configuration
     i2c_send_raw(0x12);
 
     i2c_send_raw(LCD_COMMAND_CONTRAST);
     i2c_send_raw(0xDF);
-
+    
     i2c_send_raw(0xD9);//Pre charge period
     i2c_send_raw(0x82);
 
@@ -168,7 +166,7 @@ void lcd_lib_init()
     i2c_send_raw(LCD_COMMAND_SET_ADDRESSING_MODE);
 
     i2c_send_raw(LCD_COMMAND_FULL_DISPLAY_ON_DISABLE);
-
+    
     i2c_send_raw(LCD_COMMAND_DISPLAY_ON);
     i2c_end();
 
@@ -205,8 +203,8 @@ void lcd_lib_update_screen()
     i2c_send_raw(0x00 | (0 & 0x0F));
     i2c_send_raw(0x10 | (0 >> 4));
     i2c_send_raw(0xB0 | 0);
-
-    i2c_restart();
+    
+    i2c_restart();    
     i2c_send_raw(I2C_LCD_ADDRESS << 1 | I2C_WRITE);
     i2c_send_raw(I2C_LCD_SEND_DATA);
 #if USE_TWI_INTERRUPT
@@ -345,7 +343,7 @@ void lcd_lib_draw_string(uint8_t x, uint8_t y, const char* str)
     while(*str)
     {
         const uint8_t* src = lcd_font_7x5 + (*str - ' ') * 5;
-
+        
         *dst = (*dst) | pgm_read_byte(src++) << yshift; dst++;
         *dst = (*dst) | pgm_read_byte(src++) << yshift; dst++;
         *dst = (*dst) | pgm_read_byte(src++) << yshift; dst++;
@@ -376,7 +374,7 @@ void lcd_lib_clear_string(uint8_t x, uint8_t y, const char* str)
     while(*str)
     {
         const uint8_t* src = lcd_font_7x5 + (*str - ' ') * 5;
-
+        
         *dst = (*dst) &~(pgm_read_byte(src++) << yshift); dst++;
         *dst = (*dst) &~(pgm_read_byte(src++) << yshift); dst++;
         *dst = (*dst) &~(pgm_read_byte(src++) << yshift); dst++;
@@ -414,11 +412,11 @@ void lcd_lib_draw_stringP(uint8_t x, uint8_t y, const char* pstr)
     uint8_t* dst2 = lcd_buffer + x + (y / 8) * LCD_GFX_WIDTH + LCD_GFX_WIDTH;
     uint8_t yshift = y % 8;
     uint8_t yshift2 = 8 - yshift;
-
+    
     for(char c = pgm_read_byte(pstr); c; c = pgm_read_byte(++pstr))
     {
         const uint8_t* src = lcd_font_7x5 + (c - ' ') * 5;
-
+        
         *dst = (*dst) | pgm_read_byte(src++) << yshift; dst++;
         *dst = (*dst) | pgm_read_byte(src++) << yshift; dst++;
         *dst = (*dst) | pgm_read_byte(src++) << yshift; dst++;
@@ -449,7 +447,7 @@ void lcd_lib_clear_stringP(uint8_t x, uint8_t y, const char* pstr)
     for(char c = pgm_read_byte(pstr); c; c = pgm_read_byte(++pstr))
     {
         const uint8_t* src = lcd_font_7x5 + (c - ' ') * 5;
-
+        
         *dst = (*dst) &~(pgm_read_byte(src++) << yshift); dst++;
         *dst = (*dst) &~(pgm_read_byte(src++) << yshift); dst++;
         *dst = (*dst) &~(pgm_read_byte(src++) << yshift); dst++;
@@ -514,7 +512,7 @@ void lcd_lib_draw_hline(uint8_t x0, uint8_t x1, uint8_t y)
 {
     uint8_t* dst = lcd_buffer + x0 + (y / 8) * LCD_GFX_WIDTH;
     uint8_t mask = 0x01 << (y % 8);
-
+    
     while(x0 <= x1)
     {
         *dst++ |= mask;
@@ -681,11 +679,11 @@ void lcd_lib_draw_gfx(uint8_t x, uint8_t y, const uint8_t* gfx)
     uint8_t shift = y % 8;
     uint8_t shift2 = 8 - shift;
     y /= 8;
-
+    
     for(; h; h--)
     {
         if (y >= LCD_GFX_HEIGHT / 8) break;
-
+        
         uint8_t* dst0 = lcd_buffer + x + y * LCD_GFX_WIDTH;
         uint8_t* dst1 = lcd_buffer + x + y * LCD_GFX_WIDTH + LCD_GFX_WIDTH;
         for(uint8_t _w = w; _w; _w--)
@@ -706,11 +704,11 @@ void lcd_lib_clear_gfx(uint8_t x, uint8_t y, const uint8_t* gfx)
     uint8_t shift = y % 8;
     uint8_t shift2 = 8 - shift;
     y /= 8;
-
+    
     for(; h; h--)
     {
         if (y >= LCD_GFX_HEIGHT / 8) break;
-
+        
         uint8_t* dst0 = lcd_buffer + x + y * LCD_GFX_WIDTH;
         uint8_t* dst1 = lcd_buffer + x + y * LCD_GFX_WIDTH + LCD_GFX_WIDTH;
         for(uint8_t _w = w; _w; _w--)
@@ -743,11 +741,11 @@ bool lcd_lib_button_down;
 void lcd_lib_buttons_update_interrupt()
 {
     static uint8_t lastEncBits = 0;
-
+    
     uint8_t encBits = 0;
     if(!READ(BTN_EN1)) encBits |= ENCODER_ROTARY_BIT_0;
     if(!READ(BTN_EN2)) encBits |= ENCODER_ROTARY_BIT_1;
-
+    
     if(encBits != lastEncBits)
     {
         switch(encBits)
@@ -796,7 +794,7 @@ char* int_to_string(int i, char* temp_buffer, const char* p_postfix)
     char* c = temp_buffer;
     if (i < 0)
     {
-        *c++ = '-';
+        *c++ = '-'; 
         i = -i;
     }
     if (i >= 10000)
@@ -820,10 +818,10 @@ char* int_to_string(int i, char* temp_buffer, const char* p_postfix)
 char* int_to_time_string(unsigned long i, char* temp_buffer)
 {
     char* c = temp_buffer;
-    uint8_t hours = i / 60 / 60;
+    uint8_t hours = (i / 60 / 60) % 60;
     uint8_t mins = (i / 60) % 60;
     uint8_t secs = i % 60;
-
+    
     if (hours > 0)
     {
         if (hours > 99)
@@ -874,7 +872,7 @@ char* float_to_string(float f, char* temp_buffer, const char* p_postfix)
     char* c = temp_buffer;
     if (i < 0)
     {
-        *c++ = '-';
+        *c++ = '-'; 
         i = -i;
     }
     if (i >= 10000)
@@ -883,7 +881,8 @@ char* float_to_string(float f, char* temp_buffer, const char* p_postfix)
         *c++ = ((i/1000)%10)+'0';
     *c++ = ((i/100)%10)+'0';
     *c++ = '.';
-    *c++ = ((i/10)%10)+'0';
+    if (i >= 10)
+        *c++ = ((i/10)%10)+'0';
     *c++ = ((i)%10)+'0';
     *c = '\0';
     if (p_postfix)

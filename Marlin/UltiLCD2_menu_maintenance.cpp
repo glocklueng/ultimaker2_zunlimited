@@ -15,8 +15,11 @@
 
 static void lcd_menu_maintenance_advanced();
 static void lcd_menu_maintenance_advanced_heatup();
+void lcd_menu_maintenance_advanced_bed_heatup();
 static void lcd_menu_maintenance_led();
 static void lcd_menu_maintenance_extrude();
+static void lcd_menu_maintenance_zmove();
+static void lcd_menu_maintenance_zmove1();
 static void lcd_menu_maintenance_retraction();
 static void lcd_menu_advanced_version();
 static void lcd_menu_advanced_stats();
@@ -54,37 +57,38 @@ static char* lcd_advanced_item(uint8_t nr)
     else if (nr == 3)
         strcpy_P(card.longFilename, PSTR("Heatup second nozzle"));
 #endif
-#if TEMP_SENSOR_BED != 0
+//    else if (nr == 2 + EXTRUDERS)
+//        strcpy_P(card.longFilename, PSTR("Heatup buildplate"));
     else if (nr == 2 + EXTRUDERS)
-        strcpy_P(card.longFilename, PSTR("Heatup buildplate"));
-#endif
-    else if (nr == 2 + BED_MENU_OFFSET + EXTRUDERS)
         strcpy_P(card.longFilename, PSTR("Home head"));
-    else if (nr == 3 + BED_MENU_OFFSET + EXTRUDERS)
-        strcpy_P(card.longFilename, PSTR("Lower buildplate"));
-    else if (nr == 4 + BED_MENU_OFFSET + EXTRUDERS)
-        strcpy_P(card.longFilename, PSTR("Raise buildplate"));
-    else if (nr == 5 + BED_MENU_OFFSET + EXTRUDERS)
+    else if (nr == 3 + EXTRUDERS)
+        strcpy_P(card.longFilename, PSTR("Move Z"));
+    else if (nr == 4 + EXTRUDERS)
+        strcpy_P(card.longFilename, PSTR("Move Z fast"));
+    else if (nr == 5 + EXTRUDERS)
+//        strcpy_P(card.longFilename, PSTR("Lower buildplate"));
+        strcpy_P(card.longFilename, PSTR("Home Z"));
+//    else if (nr == 5 + EXTRUDERS)
+//        strcpy_P(card.longFilename, PSTR("Raise buildplate"));
+    else if (nr == 6 + EXTRUDERS)
         strcpy_P(card.longFilename, PSTR("Insert material"));
-    else if (nr == 6 + BED_MENU_OFFSET + EXTRUDERS)
+    else if (nr == 7 + EXTRUDERS)
 #if EXTRUDERS < 2
         strcpy_P(card.longFilename, PSTR("Move material"));
 #else
         strcpy_P(card.longFilename, PSTR("Move material (1)"));
-    else if (nr == 7 + BED_MENU_OFFSET + EXTRUDERS)
+    else if (nr == 8 + EXTRUDERS)
         strcpy_P(card.longFilename, PSTR("Move material (2)"));
 #endif
-    else if (nr == 6 + BED_MENU_OFFSET + EXTRUDERS * 2)
-        strcpy_P(card.longFilename, PSTR("Set fan speed"));
-    else if (nr == 7 + BED_MENU_OFFSET + EXTRUDERS * 2)
+    else if (nr == 7 + EXTRUDERS * 2)
         strcpy_P(card.longFilename, PSTR("Retraction settings"));
-    else if (nr == 8 + BED_MENU_OFFSET + EXTRUDERS * 2)
+    else if (nr == 8 + EXTRUDERS * 2)
         strcpy_P(card.longFilename, PSTR("Motion settings"));
-    else if (nr == 9 + BED_MENU_OFFSET + EXTRUDERS * 2)
+    else if (nr == 9 + EXTRUDERS * 2)
         strcpy_P(card.longFilename, PSTR("Version"));
-    else if (nr == 10 + BED_MENU_OFFSET + EXTRUDERS * 2)
+    else if (nr == 10 + EXTRUDERS * 2)
         strcpy_P(card.longFilename, PSTR("Runtime stats"));
-    else if (nr == 11 + BED_MENU_OFFSET + EXTRUDERS * 2)
+    else if (nr == 11 + EXTRUDERS * 2)
         strcpy_P(card.longFilename, PSTR("Factory reset"));
     else
         strcpy_P(card.longFilename, PSTR("???"));
@@ -93,50 +97,11 @@ static char* lcd_advanced_item(uint8_t nr)
 
 static void lcd_advanced_details(uint8_t nr)
 {
-    char buffer[16];
-    buffer[0] = '\0';
-    if (nr == 1)
-    {
-        int_to_string(led_brightness_level, buffer, PSTR("%"));
-    }else if (nr == 2)
-    {
-        int_to_string(int(dsp_temperature[0]), buffer, PSTR("C/"));
-        int_to_string(int(target_temperature[0]), buffer+strlen(buffer), PSTR("C"));
-#if EXTRUDERS > 1
-    }else if (nr == 3)
-    {
-        int_to_string(int(dsp_temperature[1]), buffer, PSTR("C/"));
-        int_to_string(int(target_temperature[1]), buffer+strlen(buffer), PSTR("C"));
-#endif
-#if TEMP_SENSOR_BED != 0
-    }else if (nr == 2 + EXTRUDERS)
-    {
-        int_to_string(int(dsp_temperature_bed), buffer, PSTR("C/"));
-        int_to_string(int(target_temperature_bed), buffer+strlen(buffer), PSTR("C"));
-#endif
-    }else if (nr == 6 + BED_MENU_OFFSET + EXTRUDERS * 2)
-    {
-        int_to_string(int(fanSpeed) * 100 / 255, buffer, PSTR("%"));
-    }else if (nr == 9 + BED_MENU_OFFSET + EXTRUDERS * 2)
-    {
-        lcd_lib_draw_stringP(5, 53, PSTR(STRING_CONFIG_H_AUTHOR));
-        return;
-    }else{
-        return;
-    }
-    lcd_lib_draw_string(5, 53, buffer);
-}
-
-static void lcd_menu_maintenance_advanced_return()
-{
-    doCooldown();
-    enquecommand_P(PSTR("G28 X0 Y0"));
-    currentMenu = lcd_menu_maintenance_advanced;
 }
 
 static void lcd_menu_maintenance_advanced()
 {
-    lcd_scroll_menu(PSTR("ADVANCED"), 12 + BED_MENU_OFFSET + EXTRUDERS * 2, lcd_advanced_item, lcd_advanced_details);
+    lcd_scroll_menu(PSTR("ADVANCED"), 12 + EXTRUDERS * 2, lcd_advanced_item, lcd_advanced_details);
     if (lcd_lib_button_pressed)
     {
         if (IS_SELECTED_SCROLL(0))
@@ -155,36 +120,32 @@ static void lcd_menu_maintenance_advanced()
             lcd_change_to_menu(lcd_menu_maintenance_advanced_heatup, 0);
         }
 #endif
-#if TEMP_SENSOR_BED != 0
         else if (IS_SELECTED_SCROLL(2 + EXTRUDERS))
-            lcd_change_to_menu(lcd_menu_maintenance_advanced_bed_heatup, 0);
-#endif
-        else if (IS_SELECTED_SCROLL(2 + BED_MENU_OFFSET + EXTRUDERS))
         {
             lcd_lib_beep();
             enquecommand_P(PSTR("G28 X0 Y0"));
         }
-        else if (IS_SELECTED_SCROLL(3 + BED_MENU_OFFSET + EXTRUDERS))
+//            lcd_change_to_menu(lcd_menu_maintenance_advanced_bed_heatup, 0);
+        else if (IS_SELECTED_SCROLL(3 + EXTRUDERS))
+        {
+            lcd_lib_beep();
+            lcd_change_to_menu(lcd_menu_maintenance_zmove, 0);
+        }
+        else if (IS_SELECTED_SCROLL(4 + EXTRUDERS))
+        {
+            lcd_lib_beep();
+            lcd_change_to_menu(lcd_menu_maintenance_zmove1, 0);
+        }
+        else if (IS_SELECTED_SCROLL(5 + EXTRUDERS))
         {
             lcd_lib_beep();
             enquecommand_P(PSTR("G28 Z0"));
         }
-        else if (IS_SELECTED_SCROLL(4 + BED_MENU_OFFSET + EXTRUDERS))
+        else if (IS_SELECTED_SCROLL(6 + EXTRUDERS))
         {
-            lcd_lib_beep();
-            enquecommand_P(PSTR("G28 Z0"));
-            enquecommand_P(PSTR("G1 Z40"));
+            lcd_change_to_menu(lcd_menu_insert_material, 0);
         }
-        else if (IS_SELECTED_SCROLL(5 + BED_MENU_OFFSET + EXTRUDERS))
-        {
-            char buffer[32];
-            enquecommand_P(PSTR("G28 X0 Y0"));
-            sprintf_P(buffer, PSTR("G1 F%i X%i Y%i"), int(homing_feedrate[0]), X_MAX_LENGTH/2, 10);
-            enquecommand(buffer);
-            
-            lcd_change_to_menu_insert_material(lcd_menu_maintenance_advanced_return);
-        }
-        else if (IS_SELECTED_SCROLL(6 + BED_MENU_OFFSET + EXTRUDERS))
+        else if (IS_SELECTED_SCROLL(7 + EXTRUDERS))
         {
             set_extrude_min_temp(0);
             active_extruder = 0;
@@ -192,7 +153,7 @@ static void lcd_menu_maintenance_advanced()
             lcd_change_to_menu(lcd_menu_maintenance_extrude, 0);
         }
 #if EXTRUDERS > 1
-        else if (IS_SELECTED_SCROLL(7 + BED_MENU_OFFSET + EXTRUDERS))
+        else if (IS_SELECTED_SCROLL(8 + EXTRUDERS))
         {
             set_extrude_min_temp(0);
             active_extruder = 1;
@@ -200,17 +161,15 @@ static void lcd_menu_maintenance_advanced()
             lcd_change_to_menu(lcd_menu_maintenance_extrude, 0);
         }
 #endif
-        else if (IS_SELECTED_SCROLL(6 + BED_MENU_OFFSET + EXTRUDERS * 2))
-            LCD_EDIT_SETTING_BYTE_PERCENT(fanSpeed, "Fan speed", "%", 0, 100);
-        else if (IS_SELECTED_SCROLL(7 + BED_MENU_OFFSET + EXTRUDERS * 2))
+        else if (IS_SELECTED_SCROLL(7 + EXTRUDERS * 2))
             lcd_change_to_menu(lcd_menu_maintenance_retraction, SCROLL_MENU_ITEM_POS(0));
-        else if (IS_SELECTED_SCROLL(8 + BED_MENU_OFFSET + EXTRUDERS * 2))
+        else if (IS_SELECTED_SCROLL(8 + EXTRUDERS * 2))
             lcd_change_to_menu(lcd_menu_maintenance_motion, SCROLL_MENU_ITEM_POS(0));
-        else if (IS_SELECTED_SCROLL(9 + BED_MENU_OFFSET + EXTRUDERS * 2))
+        else if (IS_SELECTED_SCROLL(9 + EXTRUDERS * 2))
             lcd_change_to_menu(lcd_menu_advanced_version, SCROLL_MENU_ITEM_POS(0));
-        else if (IS_SELECTED_SCROLL(10 + BED_MENU_OFFSET + EXTRUDERS * 2))
+        else if (IS_SELECTED_SCROLL(10 + EXTRUDERS * 2))
             lcd_change_to_menu(lcd_menu_advanced_stats, SCROLL_MENU_ITEM_POS(0));
-        else if (IS_SELECTED_SCROLL(11 + BED_MENU_OFFSET + EXTRUDERS * 2))
+        else if (IS_SELECTED_SCROLL(11 + EXTRUDERS * 2))
             lcd_change_to_menu(lcd_menu_advanced_factory_reset, SCROLL_MENU_ITEM_POS(1));
     }
 }
@@ -228,12 +187,12 @@ static void lcd_menu_maintenance_advanced_heatup()
     }
     if (lcd_lib_button_pressed)
         lcd_change_to_menu(previousMenu, previousEncoderPos);
-
+    
     lcd_lib_clear();
     lcd_lib_draw_string_centerP(20, PSTR("Nozzle temperature:"));
     lcd_lib_draw_string_centerP(53, PSTR("Click to return"));
     char buffer[16];
-    int_to_string(int(dsp_temperature[active_extruder]), buffer, PSTR("C/"));
+    int_to_string(int(current_temperature[active_extruder]), buffer, PSTR("C/"));
     int_to_string(int(target_temperature[active_extruder]), buffer+strlen(buffer), PSTR("C"));
     lcd_lib_draw_string_center(30, buffer);
     lcd_lib_update_screen();
@@ -256,19 +215,76 @@ void lcd_menu_maintenance_extrude()
         target_temperature[active_extruder] = 0;
         lcd_change_to_menu(previousMenu, previousEncoderPos);
     }
-
+    
     lcd_lib_clear();
     lcd_lib_draw_string_centerP(20, PSTR("Nozzle temperature:"));
     lcd_lib_draw_string_centerP(40, PSTR("Rotate to extrude"));
     lcd_lib_draw_string_centerP(53, PSTR("Click to return"));
     char buffer[16];
-    int_to_string(int(dsp_temperature[active_extruder]), buffer, PSTR("C/"));
+    int_to_string(int(current_temperature[active_extruder]), buffer, PSTR("C/"));
     int_to_string(int(target_temperature[active_extruder]), buffer+strlen(buffer), PSTR("C"));
     lcd_lib_draw_string_center(30, buffer);
     lcd_lib_update_screen();
 }
 
-#if TEMP_SENSOR_BED != 0
+//joris zunlimited
+void lcd_menu_maintenance_zmove()
+{
+    if (lcd_lib_encoder_pos / ENCODER_TICKS_PER_SCROLL_MENU_ITEM != 0)
+    {
+        if (printing_state == PRINT_STATE_NORMAL && movesplanned() < 3)
+        {
+            current_position[Z_AXIS] += lcd_lib_encoder_pos * 0.012;
+            plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 10, active_extruder);
+            lcd_lib_encoder_pos = 0;
+        }
+    }
+    if (lcd_lib_button_pressed)
+    {
+        lcd_change_to_menu(previousMenu, previousEncoderPos);
+    }
+    
+    lcd_lib_clear();
+    lcd_lib_draw_string_centerP(20, PSTR("Z position:"));
+    lcd_lib_draw_string_centerP(40, PSTR("Rotate to move Z"));
+    lcd_lib_draw_string_centerP(53, PSTR("Click to return"));
+    char buffer[16];
+//    int_to_string(int(current_position[Z_AXIS]), buffer, PSTR(" mm"));
+    float_to_string(current_position[Z_AXIS], buffer, PSTR(" mm"));
+//    int_to_string(int(current_temperature[active_extruder]), buffer, PSTR("C/"));
+//    int_to_string(int(target_temperature[active_extruder]), buffer+strlen(buffer), PSTR("C"));
+    lcd_lib_draw_string_center(30, buffer);
+    lcd_lib_update_screen();
+}
+
+void lcd_menu_maintenance_zmove1()
+{
+    if (lcd_lib_encoder_pos / ENCODER_TICKS_PER_SCROLL_MENU_ITEM != 0)
+    {
+        if (printing_state == PRINT_STATE_NORMAL && movesplanned() < 3)
+        {
+            current_position[Z_AXIS] += lcd_lib_encoder_pos * 0.12;
+            plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 10, active_extruder);
+            lcd_lib_encoder_pos = 0;
+        }
+    }
+    if (lcd_lib_button_pressed)
+    {
+        lcd_change_to_menu(previousMenu, previousEncoderPos);
+    }
+    
+    lcd_lib_clear();
+    lcd_lib_draw_string_centerP(20, PSTR("Z position:"));
+    lcd_lib_draw_string_centerP(40, PSTR("Rotate to move Z"));
+    lcd_lib_draw_string_centerP(53, PSTR("Click to return"));
+    char buffer[16];
+    float_to_string(current_position[Z_AXIS], buffer, PSTR(" mm"));
+//    int_to_string(int(current_temperature[active_extruder]), buffer, PSTR("C/"));
+//    int_to_string(int(target_temperature[active_extruder]), buffer+strlen(buffer), PSTR("C"));
+    lcd_lib_draw_string_center(30, buffer);
+    lcd_lib_update_screen();
+}
+
 void lcd_menu_maintenance_advanced_bed_heatup()
 {
     if (lcd_lib_encoder_pos / ENCODER_TICKS_PER_SCROLL_MENU_ITEM != 0)
@@ -282,17 +298,16 @@ void lcd_menu_maintenance_advanced_bed_heatup()
     }
     if (lcd_lib_button_pressed)
         lcd_change_to_menu(previousMenu, previousEncoderPos);
-
+    
     lcd_lib_clear();
     lcd_lib_draw_string_centerP(20, PSTR("Buildplate temp.:"));
     lcd_lib_draw_string_centerP(53, PSTR("Click to return"));
     char buffer[16];
-    int_to_string(int(dsp_temperature_bed), buffer, PSTR("C/"));
+    int_to_string(int(current_temperature_bed), buffer, PSTR("C/"));
     int_to_string(int(target_temperature_bed), buffer+strlen(buffer), PSTR("C"));
     lcd_lib_draw_string_center(30, buffer);
     lcd_lib_update_screen();
 }
-#endif
 
 void lcd_menu_advanced_version()
 {
@@ -333,7 +348,7 @@ static void doFactoryReset()
     eeprom_write_byte((uint8_t*)102, 0);
     eeprom_write_byte((uint8_t*)EEPROM_FIRST_RUN_DONE_OFFSET, 0);
     eeprom_write_byte(EEPROM_MATERIAL_COUNT_OFFSET(), 0);
-
+    
     cli();
     //NOTE: Jumping to address 0 is not a fully proper way to reset.
     // Letting the watchdog timeout is a better reset, but the bootloader does not continue on a watchdog timeout.
@@ -353,7 +368,7 @@ static void doFactoryReset()
 static void lcd_menu_advanced_factory_reset()
 {
     lcd_question_screen(NULL, doFactoryReset, PSTR("YES"), previousMenu, NULL, PSTR("NO"));
-
+    
     lcd_lib_draw_string_centerP(10, PSTR("Reset everything"));
     lcd_lib_draw_string_centerP(20, PSTR("to default?"));
     lcd_lib_update_screen();
@@ -530,29 +545,15 @@ static void lcd_menu_maintenance_led()
             lcd_change_to_menu(lcd_menu_maintenance_advanced, SCROLL_MENU_ITEM_POS(1));
         }
         else if (IS_SELECTED_SCROLL(1))
-        {
             LCD_EDIT_SETTING(led_brightness_level, "Brightness", "%", 0, 100);
-        }
         else if (IS_SELECTED_SCROLL(2))
-        {
             led_mode = LED_MODE_ALWAYS_ON;
-            lcd_lib_beep();
-        }
         else if (IS_SELECTED_SCROLL(3))
-        {
             led_mode = LED_MODE_ALWAYS_OFF;
-            lcd_lib_beep();
-        }
         else if (IS_SELECTED_SCROLL(4))
-        {
             led_mode = LED_MODE_WHILE_PRINTING;
-            lcd_lib_beep();
-        }
         else if (IS_SELECTED_SCROLL(5))
-        {
             led_mode = LED_MODE_BLINK_ON_DONE;
-            lcd_lib_beep();
-        }
     }
 }
 
