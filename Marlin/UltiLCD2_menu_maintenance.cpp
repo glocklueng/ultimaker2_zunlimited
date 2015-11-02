@@ -71,24 +71,22 @@ static char* lcd_advanced_item(uint8_t nr)
 //    else if (nr == 5 + EXTRUDERS)
 //        strcpy_P(card.longFilename, PSTR("Raise buildplate"));
     else if (nr == 6 + EXTRUDERS)
-        strcpy_P(card.longFilename, PSTR("Insert material"));
-    else if (nr == 7 + EXTRUDERS)
 #if EXTRUDERS < 2
         strcpy_P(card.longFilename, PSTR("Move material"));
 #else
         strcpy_P(card.longFilename, PSTR("Move material (1)"));
-    else if (nr == 8 + EXTRUDERS)
+    else if (nr == 7 + EXTRUDERS)
         strcpy_P(card.longFilename, PSTR("Move material (2)"));
 #endif
-    else if (nr == 7 + EXTRUDERS * 2)
+    else if (nr == 6 + EXTRUDERS * 2)
         strcpy_P(card.longFilename, PSTR("Retraction settings"));
-    else if (nr == 8 + EXTRUDERS * 2)
+    else if (nr == 7 + EXTRUDERS * 2)
         strcpy_P(card.longFilename, PSTR("Motion settings"));
-    else if (nr == 9 + EXTRUDERS * 2)
+    else if (nr == 8 + EXTRUDERS * 2)
         strcpy_P(card.longFilename, PSTR("Version"));
-    else if (nr == 10 + EXTRUDERS * 2)
+    else if (nr == 9 + EXTRUDERS * 2)
         strcpy_P(card.longFilename, PSTR("Runtime stats"));
-    else if (nr == 11 + EXTRUDERS * 2)
+    else if (nr == 10 + EXTRUDERS * 2)
         strcpy_P(card.longFilename, PSTR("Factory reset"));
     else
         strcpy_P(card.longFilename, PSTR("???"));
@@ -101,7 +99,7 @@ static void lcd_advanced_details(uint8_t nr)
 
 static void lcd_menu_maintenance_advanced()
 {
-    lcd_scroll_menu(PSTR("ADVANCED"), 12 + EXTRUDERS * 2, lcd_advanced_item, lcd_advanced_details);
+    lcd_scroll_menu(PSTR("ADVANCED"), 11 + EXTRUDERS * 2, lcd_advanced_item, lcd_advanced_details);
     if (lcd_lib_button_pressed)
     {
         if (IS_SELECTED_SCROLL(0))
@@ -143,17 +141,13 @@ static void lcd_menu_maintenance_advanced()
         }
         else if (IS_SELECTED_SCROLL(6 + EXTRUDERS))
         {
-            lcd_change_to_menu(lcd_menu_insert_material, 0);
-        }
-        else if (IS_SELECTED_SCROLL(7 + EXTRUDERS))
-        {
             set_extrude_min_temp(0);
             active_extruder = 0;
             target_temperature[active_extruder] = material[active_extruder].temperature;
             lcd_change_to_menu(lcd_menu_maintenance_extrude, 0);
         }
 #if EXTRUDERS > 1
-        else if (IS_SELECTED_SCROLL(8 + EXTRUDERS))
+        else if (IS_SELECTED_SCROLL(7 + EXTRUDERS))
         {
             set_extrude_min_temp(0);
             active_extruder = 1;
@@ -161,15 +155,15 @@ static void lcd_menu_maintenance_advanced()
             lcd_change_to_menu(lcd_menu_maintenance_extrude, 0);
         }
 #endif
-        else if (IS_SELECTED_SCROLL(7 + EXTRUDERS * 2))
+        else if (IS_SELECTED_SCROLL(6 + EXTRUDERS * 2))
             lcd_change_to_menu(lcd_menu_maintenance_retraction, SCROLL_MENU_ITEM_POS(0));
-        else if (IS_SELECTED_SCROLL(8 + EXTRUDERS * 2))
+        else if (IS_SELECTED_SCROLL(7 + EXTRUDERS * 2))
             lcd_change_to_menu(lcd_menu_maintenance_motion, SCROLL_MENU_ITEM_POS(0));
-        else if (IS_SELECTED_SCROLL(9 + EXTRUDERS * 2))
+        else if (IS_SELECTED_SCROLL(8 + EXTRUDERS * 2))
             lcd_change_to_menu(lcd_menu_advanced_version, SCROLL_MENU_ITEM_POS(0));
-        else if (IS_SELECTED_SCROLL(10 + EXTRUDERS * 2))
+        else if (IS_SELECTED_SCROLL(9 + EXTRUDERS * 2))
             lcd_change_to_menu(lcd_menu_advanced_stats, SCROLL_MENU_ITEM_POS(0));
-        else if (IS_SELECTED_SCROLL(11 + EXTRUDERS * 2))
+        else if (IS_SELECTED_SCROLL(10 + EXTRUDERS * 2))
             lcd_change_to_menu(lcd_menu_advanced_factory_reset, SCROLL_MENU_ITEM_POS(1));
     }
 }
@@ -187,7 +181,7 @@ static void lcd_menu_maintenance_advanced_heatup()
     }
     if (lcd_lib_button_pressed)
         lcd_change_to_menu(previousMenu, previousEncoderPos);
-    
+
     lcd_lib_clear();
     lcd_lib_draw_string_centerP(20, PSTR("Nozzle temperature:"));
     lcd_lib_draw_string_centerP(53, PSTR("Click to return"));
@@ -215,7 +209,7 @@ void lcd_menu_maintenance_extrude()
         target_temperature[active_extruder] = 0;
         lcd_change_to_menu(previousMenu, previousEncoderPos);
     }
-    
+
     lcd_lib_clear();
     lcd_lib_draw_string_centerP(20, PSTR("Nozzle temperature:"));
     lcd_lib_draw_string_centerP(40, PSTR("Rotate to extrude"));
@@ -243,7 +237,7 @@ void lcd_menu_maintenance_zmove()
     {
         lcd_change_to_menu(previousMenu, previousEncoderPos);
     }
-    
+
     lcd_lib_clear();
     lcd_lib_draw_string_centerP(20, PSTR("Z position:"));
     lcd_lib_draw_string_centerP(40, PSTR("Rotate to move Z"));
@@ -272,7 +266,7 @@ void lcd_menu_maintenance_zmove1()
     {
         lcd_change_to_menu(previousMenu, previousEncoderPos);
     }
-    
+
     lcd_lib_clear();
     lcd_lib_draw_string_centerP(20, PSTR("Z position:"));
     lcd_lib_draw_string_centerP(40, PSTR("Rotate to move Z"));
@@ -298,7 +292,7 @@ void lcd_menu_maintenance_advanced_bed_heatup()
     }
     if (lcd_lib_button_pressed)
         lcd_change_to_menu(previousMenu, previousEncoderPos);
-    
+
     lcd_lib_clear();
     lcd_lib_draw_string_centerP(20, PSTR("Buildplate temp.:"));
     lcd_lib_draw_string_centerP(53, PSTR("Click to return"));
@@ -312,8 +306,9 @@ void lcd_menu_maintenance_advanced_bed_heatup()
 void lcd_menu_advanced_version()
 {
     lcd_info_screen(previousMenu, NULL, PSTR("Return"));
-    lcd_lib_draw_string_centerP(30, PSTR(STRING_VERSION_CONFIG_H));
-    lcd_lib_draw_string_centerP(40, PSTR(STRING_CONFIG_H_AUTHOR));
+    lcd_lib_draw_string_centerP(20, PSTR(STRING_VERSION_CONFIG_H));
+    lcd_lib_draw_string_centerP(30, PSTR("Joris"));
+    lcd_lib_draw_string_centerP(40, PSTR("z-unlimited 0.1"));
     lcd_lib_update_screen();
 }
 
@@ -348,7 +343,7 @@ static void doFactoryReset()
     eeprom_write_byte((uint8_t*)102, 0);
     eeprom_write_byte((uint8_t*)EEPROM_FIRST_RUN_DONE_OFFSET, 0);
     eeprom_write_byte(EEPROM_MATERIAL_COUNT_OFFSET(), 0);
-    
+
     cli();
     //NOTE: Jumping to address 0 is not a fully proper way to reset.
     // Letting the watchdog timeout is a better reset, but the bootloader does not continue on a watchdog timeout.
@@ -368,7 +363,7 @@ static void doFactoryReset()
 static void lcd_menu_advanced_factory_reset()
 {
     lcd_question_screen(NULL, doFactoryReset, PSTR("YES"), previousMenu, NULL, PSTR("NO"));
-    
+
     lcd_lib_draw_string_centerP(10, PSTR("Reset everything"));
     lcd_lib_draw_string_centerP(20, PSTR("to default?"));
     lcd_lib_update_screen();

@@ -135,7 +135,7 @@ static void doStartPrint()
         }
     }
     active_extruder = 0;
-    
+
     postMenuCheck = checkPrintFinished;
     card.startFileprint();
     lifetime_stats_print_start();
@@ -243,7 +243,7 @@ void lcd_sd_menu_details_callback(uint8_t nr)
                         LCD_DETAIL_CACHE_ID() = 255;
                     }
                 }
-                
+
                 if (LCD_DETAIL_CACHE_TIME() > 0)
                 {
                     char* c = buffer;
@@ -301,7 +301,7 @@ void lcd_menu_print_select()
         card.initsd();
         return;
     }
-    
+
     if (LCD_CACHE_NR_OF_FILES() == 0xFF)
         LCD_CACHE_NR_OF_FILES() = card.getnrfilenames();
     if (card.errorCode())
@@ -321,7 +321,7 @@ void lcd_menu_print_select()
         lcd_clear_cache();
         return;
     }
-    
+
     if (lcd_lib_button_pressed)
     {
         uint8_t selIndex = uint16_t(SELECTED_SCROLL_MENU_ITEM());
@@ -350,7 +350,7 @@ void lcd_menu_print_select()
                         strcpy(card.longFilename, card.filename);
                     card.longFilename[20] = '\0';
                     if (strchr(card.longFilename, '.')) strchr(card.longFilename, '.')[0] = '\0';
-                    
+
                     char buffer[64];
                     card.fgets(buffer, sizeof(buffer));
                     buffer[sizeof(buffer)-1] = '\0';
@@ -378,14 +378,14 @@ void lcd_menu_print_select()
                             volume_to_filament_length[e] = 1.0 / (M_PI * (material[e].diameter / 2.0) * (material[e].diameter / 2.0));
                             extrudemultiply[e] = material[e].flow;
                         }
-                        
+
                         fanSpeed = 0;
                         enquecommand_P(PSTR("G28"));
                         enquecommand_P(PSTR("G1 F12000 X5 Y10"));
                         lcd_change_to_menu(lcd_menu_print_heatup);
                     }else{
                         //Classic gcode file
-                        
+
                         //Set the settings to defaults so the classic GCode has full control
                         fanSpeedPercent = 100;
                         for(uint8_t e=0; e<EXTRUDERS; e++)
@@ -393,7 +393,7 @@ void lcd_menu_print_select()
                             volume_to_filament_length[e] = 1.0;
                             extrudemultiply[e] = 100;
                         }
-                        
+
                         lcd_change_to_menu(lcd_menu_print_classic_warning, MAIN_MENU_ITEM_POS(0));
                     }
                 }
@@ -412,7 +412,7 @@ void lcd_menu_print_select()
 static void lcd_menu_print_heatup()
 {
     lcd_question_screen(lcd_menu_print_tune, NULL, PSTR("TUNE"), lcd_menu_print_abort, NULL, PSTR("ABORT"));
-    
+
     if (current_temperature_bed > target_temperature_bed - 10)
     {
         for(uint8_t e=0; e<EXTRUDERS; e++)
@@ -428,7 +428,7 @@ static void lcd_menu_print_heatup()
             for(uint8_t e=0; e<EXTRUDERS; e++)
                 if (current_temperature[e] < target_temperature[e] - TEMP_WINDOW)
                     ready = false;
-            
+
             if (ready)
             {
                 doStartPrint();
@@ -451,18 +451,18 @@ static void lcd_menu_print_heatup()
         progress = min(progress, (current_temperature_bed - 20) * 125 / (target_temperature_bed - 20 - TEMP_WINDOW));
     else
         progress = 0;
-    
+
     if (progress < minProgress)
         progress = minProgress;
     else
         minProgress = progress;
-    
+
     lcd_lib_draw_string_centerP(10, PSTR("Heating up..."));
     lcd_lib_draw_string_centerP(20, PSTR("Preparing to print:"));
     lcd_lib_draw_string_center(30, card.longFilename);
 
     lcd_progressbar(progress);
-    
+
     lcd_lib_update_screen();
 }
 
@@ -505,7 +505,7 @@ static void lcd_menu_print_printing()
     totalTimeSmoothSec = (totalTimeSmoothSec * 999L + totalTimeMs / 1000L) / 1000L;
     if (isinf(totalTimeSmoothSec))
         totalTimeSmoothSec = totalTimeMs;
-    
+
     if (LCD_DETAIL_CACHE_TIME() == 0 && printTimeSec < 60)
     {
         totalTimeSmoothSec = totalTimeMs / 1000;
@@ -526,7 +526,7 @@ static void lcd_menu_print_printing()
     }
 
     lcd_progressbar(progress);
-    
+
     lcd_lib_update_screen();
 }
 
@@ -549,7 +549,7 @@ static void lcd_menu_print_error()
 static void lcd_menu_print_classic_warning()
 {
     lcd_question_screen(lcd_menu_print_printing, doStartPrint, PSTR("CONTINUE"), lcd_menu_print_select, NULL, PSTR("CANCEL"));
-    
+
     lcd_lib_draw_string_centerP(10, PSTR("This file will"));
     lcd_lib_draw_string_centerP(20, PSTR("override machine"));
     lcd_lib_draw_string_centerP(30, PSTR("setting with setting"));
@@ -562,7 +562,7 @@ static void lcd_menu_print_abort()
 {
     LED_GLOW();
     lcd_question_screen(lcd_menu_print_ready, abortPrint, PSTR("YES"), previousMenu, NULL, PSTR("NO"));
-    
+
     lcd_lib_draw_string_centerP(20, PSTR("Abort the print?"));
 
     lcd_lib_update_screen();
@@ -589,12 +589,12 @@ static void lcd_menu_print_ready()
         int16_t progress = 124 - (current_temperature[0] - 60);
         if (progress < 0) progress = 0;
         if (progress > 124) progress = 124;
-        
+
         if (progress < minProgress)
             progress = minProgress;
         else
             minProgress = progress;
-            
+
         lcd_progressbar(progress);
         char buffer[16];
         char* c = buffer;
@@ -610,6 +610,39 @@ static void lcd_menu_print_ready()
     }
     lcd_lib_update_screen();
 }
+
+#ifdef BABYSTEPPING
+static void lcd_menu_babystepping(uint8_t axis)
+{
+    lcd_lib_clear();
+
+    char buffer[16];
+    strcpy_P(buffer, PSTR("Babystep "));
+    buffer[9] = axis_codes[axis];
+    buffer[10] = '\0';
+
+    lcd_lib_draw_string_center(20, buffer);
+    lcd_lib_draw_string_centerP(40, PSTR("Rotate to move axis"));
+    lcd_lib_draw_string_centerP(50, PSTR("Click to return"));
+    lcd_lib_update_screen();
+
+    int diff = lcd_lib_encoder_pos*axis_steps_per_unit[axis]/200;
+    if (diff)
+    {
+        babystepsTodo[axis] += diff;
+        lcd_lib_encoder_pos = 0;
+    }
+
+    if (lcd_lib_button_pressed)
+        lcd_change_to_menu(previousMenu, previousEncoderPos);
+}
+
+static void lcd_menu_babystep_x() { lcd_menu_babystepping(X_AXIS); }
+static void lcd_menu_babystep_y() { lcd_menu_babystepping(Y_AXIS); }
+static void lcd_menu_babystep_z() { lcd_menu_babystepping(Z_AXIS); }
+
+
+#endif // BABYSTEPPING
 
 static char* tune_item_callback(uint8_t nr)
 {
@@ -655,6 +688,12 @@ static char* tune_item_callback(uint8_t nr)
         strcpy_P(c, PSTR("Retraction"));
     else if (nr == 6 + EXTRUDERS * 2)
         strcpy_P(c, PSTR("LED Brightness"));
+    else if (nr == 7 + EXTRUDERS * 2)
+        strcpy_P(c, PSTR("Babystep X"));
+    else if (nr == 8 + EXTRUDERS * 2)
+        strcpy_P(c, PSTR("Babystep Y"));
+    else if (nr == 9 + EXTRUDERS * 2)
+        strcpy_P(c, PSTR("Babystep Z"));
     return c;
 }
 
@@ -715,7 +754,7 @@ void lcd_menu_print_tune_heatup_nozzle0()
     }
     if (lcd_lib_button_pressed)
         lcd_change_to_menu(previousMenu, previousEncoderPos);
-    
+
     lcd_lib_clear();
     lcd_lib_draw_string_centerP(20, PSTR("Nozzle temperature:"));
     lcd_lib_draw_string_centerP(53, PSTR("Click to return"));
@@ -739,7 +778,7 @@ void lcd_menu_print_tune_heatup_nozzle1()
     }
     if (lcd_lib_button_pressed)
         lcd_change_to_menu(previousMenu, previousEncoderPos);
-    
+
     lcd_lib_clear();
     lcd_lib_draw_string_centerP(20, PSTR("Nozzle2 temperature:"));
     lcd_lib_draw_string_centerP(53, PSTR("Click to return"));
@@ -753,7 +792,7 @@ void lcd_menu_print_tune_heatup_nozzle1()
 extern void lcd_menu_maintenance_advanced_bed_heatup();//TODO
 static void lcd_menu_print_tune()
 {
-    lcd_scroll_menu(PSTR("TUNE"), 7 + EXTRUDERS * 2, tune_item_callback, tune_item_details_callback);
+    lcd_scroll_menu(PSTR("TUNE"), 10 + EXTRUDERS * 2, tune_item_callback, tune_item_details_callback);
     if (lcd_lib_button_pressed)
     {
         if (IS_SELECTED_SCROLL(0))
@@ -811,6 +850,12 @@ static void lcd_menu_print_tune()
             lcd_change_to_menu(lcd_menu_print_tune_retraction);
         else if (IS_SELECTED_SCROLL(6 + EXTRUDERS * 2))
             LCD_EDIT_SETTING(led_brightness_level, "Brightness", "%", 0, 100);
+        else if (IS_SELECTED_SCROLL(7 + EXTRUDERS * 2))
+            lcd_change_to_menu(lcd_menu_babystep_x, 0);
+        else if (IS_SELECTED_SCROLL(8 + EXTRUDERS * 2))
+            lcd_change_to_menu(lcd_menu_babystep_y, 0);
+        else if (IS_SELECTED_SCROLL(9 + EXTRUDERS * 2))
+            lcd_change_to_menu(lcd_menu_babystep_z, 0);
     }
 }
 

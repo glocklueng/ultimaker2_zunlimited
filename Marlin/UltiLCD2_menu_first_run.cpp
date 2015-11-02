@@ -140,18 +140,18 @@ static void parkHeadForLeftAdjustment()
     enquecommand(buffer);
 }
 
-static void lcd_menu_first_run_bed_level_center_adjust()
-{
-    LED_GLOW();
-    SELECT_MAIN_MENU_ITEM(0);
-    lcd_info_screen(lcd_menu_first_run_bed_level_left_adjust, parkHeadForLeftAdjustment, PSTR("CONTINUE"));
-    DRAW_PROGRESS_NR(4);
-    lcd_lib_draw_string_centerP(10, PSTR("Rotate the button"));
-    lcd_lib_draw_string_centerP(20, PSTR("until the nozzle is"));
-    lcd_lib_draw_string_centerP(30, PSTR("a millimeter away"));
-    lcd_lib_draw_string_centerP(40, PSTR("from the buildplate."));
-    lcd_lib_update_screen();
-}
+//static void lcd_menu_first_run_bed_level_center_adjust()
+//{
+//    LED_GLOW();
+//    SELECT_MAIN_MENU_ITEM(0);
+//    lcd_info_screen(lcd_menu_first_run_bed_level_left_adjust, parkHeadForLeftAdjustment, PSTR("CONTINUE"));
+//    DRAW_PROGRESS_NR(4);
+//    lcd_lib_draw_string_centerP(10, PSTR("Rotate the button"));
+//    lcd_lib_draw_string_centerP(20, PSTR("until the nozzle is"));
+//    lcd_lib_draw_string_centerP(30, PSTR("a millimeter away"));
+//    lcd_lib_draw_string_centerP(40, PSTR("from the buildplate."));
+//    lcd_lib_update_screen();
+//}
 
 static void parkHeadForRightAdjustment()
 {
@@ -164,34 +164,34 @@ static void parkHeadForRightAdjustment()
     enquecommand(buffer);
 }
 
-static void lcd_menu_first_run_bed_level_left_adjust()
-{
-    LED_GLOW();
-    SELECT_MAIN_MENU_ITEM(0);
-        
-    lcd_info_screen(lcd_menu_first_run_bed_level_right_adjust, parkHeadForRightAdjustment, PSTR("CONTINUE"));
-    DRAW_PROGRESS_NR(5);
-    lcd_lib_draw_string_centerP(10, PSTR("Turn left buildplate"));
-    lcd_lib_draw_string_centerP(20, PSTR("screw till the nozzle"));
-    lcd_lib_draw_string_centerP(30, PSTR("is a millimeter away"));
-    lcd_lib_draw_string_centerP(40, PSTR("from the buildplate."));
-    
-    lcd_lib_update_screen();
-}
+//static void lcd_menu_first_run_bed_level_left_adjust()
+//{
+//    LED_GLOW();
+//    SELECT_MAIN_MENU_ITEM(0);
+//
+//    lcd_info_screen(lcd_menu_first_run_bed_level_right_adjust, parkHeadForRightAdjustment, PSTR("CONTINUE"));
+//    DRAW_PROGRESS_NR(5);
+//    lcd_lib_draw_string_centerP(10, PSTR("Turn left buildplate"));
+//    lcd_lib_draw_string_centerP(20, PSTR("screw till the nozzle"));
+//    lcd_lib_draw_string_centerP(30, PSTR("is a millimeter away"));
+//    lcd_lib_draw_string_centerP(40, PSTR("from the buildplate."));
+//
+//    lcd_lib_update_screen();
+//}
 
-static void lcd_menu_first_run_bed_level_right_adjust()
-{
-    LED_GLOW();
-    SELECT_MAIN_MENU_ITEM(0);
-    lcd_info_screen(lcd_menu_first_run_bed_level_paper, NULL, PSTR("CONTINUE"));
-    DRAW_PROGRESS_NR(6);
-    lcd_lib_draw_string_centerP(10, PSTR("Turn right buildplate"));
-    lcd_lib_draw_string_centerP(20, PSTR("screw till the nozzle"));
-    lcd_lib_draw_string_centerP(30, PSTR("is a millimeter away"));
-    lcd_lib_draw_string_centerP(40, PSTR("from the buildplate."));
-    
-    lcd_lib_update_screen();
-}
+//static void lcd_menu_first_run_bed_level_right_adjust()
+//{
+//    LED_GLOW();
+//    SELECT_MAIN_MENU_ITEM(0);
+//    lcd_info_screen(lcd_menu_first_run_bed_level_paper, NULL, PSTR("CONTINUE"));
+//    DRAW_PROGRESS_NR(6);
+//    lcd_lib_draw_string_centerP(10, PSTR("Turn right buildplate"));
+//    lcd_lib_draw_string_centerP(20, PSTR("screw till the nozzle"));
+//    lcd_lib_draw_string_centerP(30, PSTR("is a millimeter away"));
+//    lcd_lib_draw_string_centerP(40, PSTR("from the buildplate."));
+//
+//    lcd_lib_update_screen();
+//}
 
 static void parkHeadForCenterAdjustment()
 {
@@ -204,55 +204,55 @@ static void parkHeadForCenterAdjustment()
     enquecommand(buffer);
 }
 
-static void lcd_menu_first_run_bed_level_paper()
-{
-    SELECT_MAIN_MENU_ITEM(0);
-    lcd_info_screen(lcd_menu_first_run_bed_level_paper_center, parkHeadForCenterAdjustment, PSTR("CONTINUE"));
-    DRAW_PROGRESS_NR(7);
-    lcd_lib_draw_string_centerP(10, PSTR("Repeat this step, but"));
-    lcd_lib_draw_string_centerP(20, PSTR("now use a sheet of"));
-    lcd_lib_draw_string_centerP(30, PSTR("paper to fine-tune"));
-    lcd_lib_draw_string_centerP(40, PSTR("the buildplate level."));
-    lcd_lib_update_screen();
-}
+//static void lcd_menu_first_run_bed_level_paper()
+//{
+//    SELECT_MAIN_MENU_ITEM(0);
+//    lcd_info_screen(lcd_menu_first_run_bed_level_paper_center, parkHeadForCenterAdjustment, PSTR("CONTINUE"));
+//    DRAW_PROGRESS_NR(7);
+//    lcd_lib_draw_string_centerP(10, PSTR("Repeat this step, but"));
+//    lcd_lib_draw_string_centerP(20, PSTR("now use a sheet of"));
+//    lcd_lib_draw_string_centerP(30, PSTR("paper to fine-tune"));
+//    lcd_lib_draw_string_centerP(40, PSTR("the buildplate level."));
+//    lcd_lib_update_screen();
+//}
 
-static void lcd_menu_first_run_bed_level_paper_center()
-{
-    LED_GLOW();
-    
-    if (lcd_lib_encoder_pos == ENCODER_NO_SELECTION)
-        lcd_lib_encoder_pos = 0;
-    
-    if (printing_state == PRINT_STATE_NORMAL && lcd_lib_encoder_pos != 0 && movesplanned() < 4)
-    {
-        current_position[Z_AXIS] -= float(lcd_lib_encoder_pos) * 0.05;
-        lcd_lib_encoder_pos = 0;
-        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 60, 0);
-    }
+//static void lcd_menu_first_run_bed_level_paper_center()
+//{
+//    LED_GLOW();
+//
+//    if (lcd_lib_encoder_pos == ENCODER_NO_SELECTION)
+//        lcd_lib_encoder_pos = 0;
+//
+//    if (printing_state == PRINT_STATE_NORMAL && lcd_lib_encoder_pos != 0 && movesplanned() < 4)
+//    {
+//        current_position[Z_AXIS] -= float(lcd_lib_encoder_pos) * 0.05;
+//        lcd_lib_encoder_pos = 0;
+//        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 60, 0);
+//    }
+//
+//    if (movesplanned() > 0)
+//        lcd_info_screen(NULL, NULL, PSTR("CONTINUE"));
+//    else
+//        lcd_info_screen(lcd_menu_first_run_bed_level_paper_left, parkHeadForLeftAdjustment, PSTR("CONTINUE"));
+//    DRAW_PROGRESS_NR(8);
+//    lcd_lib_draw_string_centerP(10, PSTR("Slide a paper between"));
+//    lcd_lib_draw_string_centerP(20, PSTR("buildplate and nozzle"));
+//    lcd_lib_draw_string_centerP(30, PSTR("until you feel a"));
+//    lcd_lib_draw_string_centerP(40, PSTR("bit resistance."));
+//    lcd_lib_update_screen();
+//}
 
-    if (movesplanned() > 0)
-        lcd_info_screen(NULL, NULL, PSTR("CONTINUE"));
-    else
-        lcd_info_screen(lcd_menu_first_run_bed_level_paper_left, parkHeadForLeftAdjustment, PSTR("CONTINUE"));
-    DRAW_PROGRESS_NR(8);
-    lcd_lib_draw_string_centerP(10, PSTR("Slide a paper between"));
-    lcd_lib_draw_string_centerP(20, PSTR("buildplate and nozzle"));
-    lcd_lib_draw_string_centerP(30, PSTR("until you feel a"));
-    lcd_lib_draw_string_centerP(40, PSTR("bit resistance."));
-    lcd_lib_update_screen();
-}
-
-static void lcd_menu_first_run_bed_level_paper_left()
-{
-    LED_GLOW();
-
-    SELECT_MAIN_MENU_ITEM(0);
-    lcd_info_screen(lcd_menu_first_run_bed_level_paper_right, parkHeadForRightAdjustment, PSTR("CONTINUE"));
-    DRAW_PROGRESS_NR(9);
-    lcd_lib_draw_string_centerP(20, PSTR("Repeat this for"));
-    lcd_lib_draw_string_centerP(30, PSTR("the left corner..."));
-    lcd_lib_update_screen();
-}
+//static void lcd_menu_first_run_bed_level_paper_left()
+//{
+//    LED_GLOW();
+//
+//    SELECT_MAIN_MENU_ITEM(0);
+//    lcd_info_screen(lcd_menu_first_run_bed_level_paper_right, parkHeadForRightAdjustment, PSTR("CONTINUE"));
+//    DRAW_PROGRESS_NR(9);
+//    lcd_lib_draw_string_centerP(20, PSTR("Repeat this for"));
+//    lcd_lib_draw_string_centerP(30, PSTR("the left corner..."));
+//    lcd_lib_update_screen();
+//}
 
 static void homeBed()
 {
@@ -262,20 +262,20 @@ static void homeBed()
     enquecommand_P(PSTR("G28 Z0"));
 }
 
-static void lcd_menu_first_run_bed_level_paper_right()
-{
-    LED_GLOW();
-
-    SELECT_MAIN_MENU_ITEM(0);
-    if (IS_FIRST_RUN_DONE())
-        lcd_info_screen(lcd_menu_main, homeBed, PSTR("DONE"));
-    else
-        lcd_info_screen(lcd_menu_first_run_material_load, homeBed, PSTR("CONTINUE"));
-    DRAW_PROGRESS_NR(10);
-    lcd_lib_draw_string_centerP(20, PSTR("Repeat this for"));
-    lcd_lib_draw_string_centerP(30, PSTR("the right corner..."));
-    lcd_lib_update_screen();
-}
+//static void lcd_menu_first_run_bed_level_paper_right()
+//{
+//    LED_GLOW();
+//
+//    SELECT_MAIN_MENU_ITEM(0);
+//    if (IS_FIRST_RUN_DONE())
+//        lcd_info_screen(lcd_menu_main, homeBed, PSTR("DONE"));
+//    else
+//        lcd_info_screen(lcd_menu_first_run_material_load, homeBed, PSTR("CONTINUE"));
+//    DRAW_PROGRESS_NR(10);
+//    lcd_lib_draw_string_centerP(20, PSTR("Repeat this for"));
+//    lcd_lib_draw_string_centerP(30, PSTR("the right corner..."));
+//    lcd_lib_update_screen();
+//}
 
 static void parkHeadForHeating()
 {
@@ -283,118 +283,118 @@ static void parkHeadForHeating()
     enquecommand_P(PSTR("M84"));//Disable motor power.
 }
 
-static void lcd_menu_first_run_material_load()
-{
-    SELECT_MAIN_MENU_ITEM(0);
-    lcd_info_screen(lcd_menu_first_run_material_load_heatup, parkHeadForHeating, PSTR("CONTINUE"));
-    DRAW_PROGRESS_NR(11);
-    lcd_lib_draw_string_centerP(10, PSTR("Now that we leveled"));
-    lcd_lib_draw_string_centerP(20, PSTR("the buildplate"));
-    lcd_lib_draw_string_centerP(30, PSTR("the next step is"));
-    lcd_lib_draw_string_centerP(40, PSTR("to insert material."));
-    lcd_lib_update_screen();
-}
+//static void lcd_menu_first_run_material_load()
+//{
+//    SELECT_MAIN_MENU_ITEM(0);
+//    lcd_info_screen(lcd_menu_first_run_material_load_heatup, parkHeadForHeating, PSTR("CONTINUE"));
+//    DRAW_PROGRESS_NR(11);
+//    lcd_lib_draw_string_centerP(10, PSTR("Now that we leveled"));
+//    lcd_lib_draw_string_centerP(20, PSTR("the buildplate"));
+//    lcd_lib_draw_string_centerP(30, PSTR("the next step is"));
+//    lcd_lib_draw_string_centerP(40, PSTR("to insert material."));
+//    lcd_lib_update_screen();
+//}
 
-static void lcd_menu_first_run_material_load_heatup()
-{
-    setTargetHotend(230, 0);
-    int16_t temp = degHotend(0) - 20;
-    int16_t target = degTargetHotend(0) - 10 - 20;
-    if (temp < 0) temp = 0;
-    if (temp > target)
-    {
-        for(uint8_t e=0; e<EXTRUDERS; e++)
-            volume_to_filament_length[e] = 1.0;//Set the extrusion to 1mm per given value, so we can move the filament a set distance.
-        
-        currentMenu = lcd_menu_first_run_material_load_insert;
-        temp = target;
-    }
+//static void lcd_menu_first_run_material_load_heatup()
+//{
+//    setTargetHotend(230, 0);
+//    int16_t temp = degHotend(0) - 20;
+//    int16_t target = degTargetHotend(0) - 10 - 20;
+//    if (temp < 0) temp = 0;
+//    if (temp > target)
+//    {
+//        for(uint8_t e=0; e<EXTRUDERS; e++)
+//            volume_to_filament_length[e] = 1.0;//Set the extrusion to 1mm per given value, so we can move the filament a set distance.
+//
+//        currentMenu = lcd_menu_first_run_material_load_insert;
+//        temp = target;
+//    }
+//
+//    uint8_t progress = uint8_t(temp * 125 / target);
+//    if (progress < minProgress)
+//        progress = minProgress;
+//    else
+//        minProgress = progress;
+//
+//    lcd_basic_screen();
+//    DRAW_PROGRESS_NR(12);
+//    lcd_lib_draw_string_centerP(10, PSTR("Please wait,"));
+//    lcd_lib_draw_string_centerP(20, PSTR("printhead heating for"));
+//    lcd_lib_draw_string_centerP(30, PSTR("material loading"));
+//
+//    lcd_progressbar(progress);
+//
+//    lcd_lib_update_screen();
+//}
 
-    uint8_t progress = uint8_t(temp * 125 / target);
-    if (progress < minProgress)
-        progress = minProgress;
-    else
-        minProgress = progress;
-    
-    lcd_basic_screen();
-    DRAW_PROGRESS_NR(12);
-    lcd_lib_draw_string_centerP(10, PSTR("Please wait,"));
-    lcd_lib_draw_string_centerP(20, PSTR("printhead heating for"));
-    lcd_lib_draw_string_centerP(30, PSTR("material loading"));
+//static void runMaterialForward()
+//{
+//    //Override the max feedrate and acceleration values to get a better insert speed and speedup/slowdown
+//    float old_max_feedrate_e = max_feedrate[E_AXIS];
+//    float old_retract_acceleration = retract_acceleration;
+//    max_feedrate[E_AXIS] = FILAMENT_INSERT_FAST_SPEED;
+//    retract_acceleration = FILAMENT_LONG_MOVE_ACCELERATION;
+//
+//    current_position[E_AXIS] = 0;
+//    plan_set_e_position(current_position[E_AXIS]);
+//    for(uint8_t n=0;n<6;n++)
+//    {
+//        current_position[E_AXIS] += FILAMENT_FORWARD_LENGTH / 6;
+//        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], FILAMENT_INSERT_FAST_SPEED, 0);
+//    }
+//
+//    //Put back origonal values.
+//    max_feedrate[E_AXIS] = old_max_feedrate_e;
+//    retract_acceleration = old_retract_acceleration;
+//}
 
-    lcd_progressbar(progress);
-    
-    lcd_lib_update_screen();
-}
+//static void lcd_menu_first_run_material_load_insert()
+//{
+//    LED_GLOW();
+//
+//    if (movesplanned() < 2)
+//    {
+//        current_position[E_AXIS] += 0.5;
+//        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], FILAMENT_INSERT_SPEED, 0);
+//    }
+//
+//    SELECT_MAIN_MENU_ITEM(0);
+//    lcd_info_screen(lcd_menu_first_run_material_load_forward, runMaterialForward, PSTR("CONTINUE"));
+//    DRAW_PROGRESS_NR(13);
+//    lcd_lib_draw_string_centerP(10, PSTR("Insert new material"));
+//    lcd_lib_draw_string_centerP(20, PSTR("from the rear of"));
+//    lcd_lib_draw_string_centerP(30, PSTR("your Ultimaker2,"));
+//    lcd_lib_draw_string_centerP(40, PSTR("above the arrow."));
+//    lcd_lib_update_screen();
+//}
 
-static void runMaterialForward()
-{
-    //Override the max feedrate and acceleration values to get a better insert speed and speedup/slowdown
-    float old_max_feedrate_e = max_feedrate[E_AXIS];
-    float old_retract_acceleration = retract_acceleration;
-    max_feedrate[E_AXIS] = FILAMENT_INSERT_FAST_SPEED;
-    retract_acceleration = FILAMENT_LONG_MOVE_ACCELERATION;
-    
-    current_position[E_AXIS] = 0;
-    plan_set_e_position(current_position[E_AXIS]);
-    for(uint8_t n=0;n<6;n++)
-    {
-        current_position[E_AXIS] += FILAMENT_FORWARD_LENGTH / 6;
-        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], FILAMENT_INSERT_FAST_SPEED, 0);
-    }
-    
-    //Put back origonal values.
-    max_feedrate[E_AXIS] = old_max_feedrate_e;
-    retract_acceleration = old_retract_acceleration;
-}
-
-static void lcd_menu_first_run_material_load_insert()
-{
-    LED_GLOW();
-    
-    if (movesplanned() < 2)
-    {
-        current_position[E_AXIS] += 0.5;
-        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], FILAMENT_INSERT_SPEED, 0);
-    }
-    
-    SELECT_MAIN_MENU_ITEM(0);
-    lcd_info_screen(lcd_menu_first_run_material_load_forward, runMaterialForward, PSTR("CONTINUE"));
-    DRAW_PROGRESS_NR(13);
-    lcd_lib_draw_string_centerP(10, PSTR("Insert new material"));
-    lcd_lib_draw_string_centerP(20, PSTR("from the rear of"));
-    lcd_lib_draw_string_centerP(30, PSTR("your Ultimaker2,"));
-    lcd_lib_draw_string_centerP(40, PSTR("above the arrow."));
-    lcd_lib_update_screen();
-}
-
-static void lcd_menu_first_run_material_load_forward()
-{
-    lcd_basic_screen();
-    DRAW_PROGRESS_NR(14);
-    lcd_lib_draw_string_centerP(20, PSTR("Loading material..."));
-    
-    if (!blocks_queued())
-    {
-        lcd_lib_beep();
-        led_glow_dir = led_glow = 0;
-        digipot_current(2, motor_current_setting[2]*2/3);//Set E motor power lower so the motor will skip instead of grind.
-        currentMenu = lcd_menu_first_run_material_load_wait;
-        SELECT_MAIN_MENU_ITEM(0);
-    }
-
-    long pos = st_get_position(E_AXIS);
-    long targetPos = lround(FILAMENT_FORWARD_LENGTH*axis_steps_per_unit[E_AXIS]);
-    uint8_t progress = (pos * 125 / targetPos);
-    lcd_progressbar(progress);
-    
-    lcd_lib_update_screen();
-}
+//static void lcd_menu_first_run_material_load_forward()
+//{
+//    lcd_basic_screen();
+//    DRAW_PROGRESS_NR(14);
+//    lcd_lib_draw_string_centerP(20, PSTR("Loading material..."));
+//
+//    if (!blocks_queued())
+//    {
+//        lcd_lib_beep();
+//        led_glow_dir = led_glow = 0;
+//        digipot_current(2, motor_current_setting[2]*2/3);//Set E motor power lower so the motor will skip instead of grind.
+//        currentMenu = lcd_menu_first_run_material_load_wait;
+//        SELECT_MAIN_MENU_ITEM(0);
+//    }
+//
+//    long pos = st_get_position(E_AXIS);
+//    long targetPos = lround(FILAMENT_FORWARD_LENGTH*axis_steps_per_unit[E_AXIS]);
+//    uint8_t progress = (pos * 125 / targetPos);
+//    lcd_progressbar(progress);
+//
+//    lcd_lib_update_screen();
+//}
 
 static void lcd_menu_first_run_material_load_wait()
 {
     LED_GLOW();
-    
+
     lcd_info_screen(lcd_menu_first_run_material_select_1, doCooldown, PSTR("CONTINUE"));
     DRAW_PROGRESS_NR(15);
     lcd_lib_draw_string_centerP(10, PSTR("Push button when"));
@@ -406,7 +406,7 @@ static void lcd_menu_first_run_material_load_wait()
         current_position[E_AXIS] += 0.5;
         plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], FILAMENT_INSERT_EXTRUDE_SPEED, 0);
     }
-    
+
     lcd_lib_update_screen();
 }
 
@@ -428,7 +428,7 @@ static void lcd_menu_first_run_material_select_pla_abs()
     lcd_tripple_menu(PSTR("PLA"), PSTR("ABS"), NULL);
     DRAW_PROGRESS_NR(17);
     lcd_lib_update_screen();
-    
+
     if (lcd_lib_button_pressed)
     {
         digipot_current(2, motor_current_setting[2]);//Set E motor power to default.
@@ -508,7 +508,7 @@ static void lcd_menu_first_run_print_card_detect()
         card.release();
         return;
     }
-    
+
     if (!card.isOk())
     {
         lcd_info_screen(lcd_menu_main);
@@ -518,7 +518,7 @@ static void lcd_menu_first_run_print_card_detect()
         card.initsd();
         return;
     }
-    
+
     SELECT_MAIN_MENU_ITEM(0);
     lcd_info_screen(lcd_menu_print_select, NULL, PSTR("LET'S PRINT"));
     DRAW_PROGRESS_NR(21);

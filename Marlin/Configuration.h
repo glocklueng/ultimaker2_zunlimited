@@ -434,7 +434,7 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
   #define EZ_PROBE_Z_SLOW_SPEED 1
   #define EZ_PROBE_MAX_Z 210
   #define EZ_PROBE_MIN_Z 203
-  
+
 #endif // ENABLE_AUTO_BED_LEVELING
 
 
